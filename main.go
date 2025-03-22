@@ -4,9 +4,12 @@ import (
 	"github.com/arezvani/wallet-go/pkg/configs"
 	"github.com/arezvani/wallet-go/pkg/middleware"
 	"github.com/arezvani/wallet-go/pkg/routes"
+	"github.com/arezvani/wallet-go/platform/database"
 	"github.com/arezvani/wallet-go/utils"
 
 	_ "github.com/arezvani/wallet-go/docs" // load API Docs files (Swagger)
+
+	"log"
 
 	"github.com/gofiber/fiber/v2"
 	_ "github.com/joho/godotenv/autoload" // load .env file automatically
@@ -23,6 +26,12 @@ import (
 // @license.url http://www.apache.org/licenses/LICENSE-2.0.html
 // @BasePath /api
 func main() {
+	// Create database connection
+	if err := database.OpenDBConnection(); err != nil {
+		log.Fatalf("Failed to connect to database: %v", err)
+	}
+	defer database.DB.Close()
+
 	// Define Fiber config.
 	config := configs.FiberConfig()
 
@@ -30,11 +39,11 @@ func main() {
 	app := fiber.New(config)
 
 	// Middlewares.
-	middleware.FiberMiddleware(app) // Register Fiber's middleware for app.
+	middleware.FiberMiddleware(app)
 
 	// Routes.
-	routes.SwaggerRoute(app) // Register a route for API Docs (Swagger).
-	routes.PublicRoutes(app) // Register a public routes for app.
+	routes.SwaggerRoute(app)
+	routes.PublicRoutes(app)
 
 	utils.StartServer(app)
 }

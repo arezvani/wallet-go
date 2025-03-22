@@ -19,17 +19,8 @@ import (
 // @Success 201 {object} models.Transaction
 // @Router /transaction [post]
 func PostTransaction(c *fiber.Ctx) error {
-	db, err := database.OpenDBConnection()
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": true,
-			"msg":   "Failed to connect to database",
-		})
-	}
-	defer db.Close()
-
 	var tx models.Transaction
-	if err = c.BodyParser(&tx); err != nil {
+	if err := c.BodyParser(&tx); err != nil {
 		return c.Status(400).JSON(fiber.Map{
 			"error": "Invalid request body",
 		})
@@ -53,7 +44,7 @@ func PostTransaction(c *fiber.Ctx) error {
 		})
 	}
 
-	tx_db, err := db.Beginx()
+	tx_db, err := database.DB.Beginx()
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{
 			"error": "Failed to start database transaction",
@@ -126,15 +117,6 @@ func PostTransaction(c *fiber.Ctx) error {
 // @Success 200 {array} models.Transaction
 // @Router /transactions/{walletId} [get]
 func GetTransactions(c *fiber.Ctx) error {
-	db, err := database.OpenDBConnection()
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": true,
-			"msg":   "Failed to connect to database",
-		})
-	}
-	defer db.Close()
-
 	walletID := c.Params("walletId")
 	if walletID == "" {
 		return c.Status(400).JSON(fiber.Map{
@@ -143,7 +125,7 @@ func GetTransactions(c *fiber.Ctx) error {
 	}
 
 	var transactions []models.Transaction
-	err = db.Select(&transactions,
+	err := database.DB.Select(&transactions,
 		"SELECT id, wallet_id, amount, type, created_at FROM transactions WHERE wallet_id = $1 ORDER BY created_at DESC",
 		walletID)
 	if err != nil {
@@ -165,15 +147,6 @@ func GetTransactions(c *fiber.Ctx) error {
 // @Success 200 {object} models.Wallet "wallet_id and balance"
 // @Router /balance/{walletId} [get]
 func GetBalance(c *fiber.Ctx) error {
-	db, err := database.OpenDBConnection()
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": true,
-			"msg":   "Failed to connect to database",
-		})
-	}
-	defer db.Close()
-
 	walletID := c.Params("walletId")
 	if walletID == "" {
 		return c.Status(400).JSON(fiber.Map{
@@ -182,7 +155,7 @@ func GetBalance(c *fiber.Ctx) error {
 	}
 
 	var wallet models.Wallet
-	err = db.Get(&wallet, "SELECT id, balance FROM wallets WHERE id = $1", walletID)
+	err := database.DB.Get(&wallet, "SELECT id, balance FROM wallets WHERE id = $1", walletID)
 	if err != nil {
 		return c.Status(404).JSON(fiber.Map{
 			"error": "Wallet not found",
