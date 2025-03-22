@@ -4,8 +4,9 @@ import (
 	"time"
 
 	"github.com/arezvani/wallet-go/app/models"
+	"github.com/arezvani/wallet-go/platform/database"
+
 	"github.com/gofiber/fiber/v2"
-	"github.com/jmoiron/sqlx"
 )
 
 // PostTransaction handles creating a new transaction
@@ -16,14 +17,19 @@ import (
 // @Produce json
 // @Param transaction body models.Transaction true "Transaction details"
 // @Success 201 {object} models.Transaction
-// @Failure 400 {object} fiber.Map "Invalid request body or validation error"
-// @Failure 500 {object} fiber.Map "Internal server error"
-// @Router /api/transaction [post]
+// @Router /transaction [post]
 func PostTransaction(c *fiber.Ctx) error {
-	db := c.Locals("db").(*sqlx.DB)
+	db, err := database.OpenDBConnection()
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": true,
+			"msg":   "Failed to connect to database",
+		})
+	}
+	defer db.Close()
 
 	var tx models.Transaction
-	if err := c.BodyParser(&tx); err != nil {
+	if err = c.BodyParser(&tx); err != nil {
 		return c.Status(400).JSON(fiber.Map{
 			"error": "Invalid request body",
 		})
@@ -118,11 +124,16 @@ func PostTransaction(c *fiber.Ctx) error {
 // @Produce json
 // @Param walletId path string true "Wallet ID"
 // @Success 200 {array} models.Transaction
-// @Failure 400 {object} fiber.Map "Wallet ID is required"
-// @Failure 500 {object} fiber.Map "Failed to retrieve transactions"
-// @Router /api/transactions/{walletId} [get]
+// @Router /transactions/{walletId} [get]
 func GetTransactions(c *fiber.Ctx) error {
-	db := c.Locals("db").(*sqlx.DB)
+	db, err := database.OpenDBConnection()
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": true,
+			"msg":   "Failed to connect to database",
+		})
+	}
+	defer db.Close()
 
 	walletID := c.Params("walletId")
 	if walletID == "" {
@@ -132,7 +143,7 @@ func GetTransactions(c *fiber.Ctx) error {
 	}
 
 	var transactions []models.Transaction
-	err := db.Select(&transactions,
+	err = db.Select(&transactions,
 		"SELECT id, wallet_id, amount, type, created_at FROM transactions WHERE wallet_id = $1 ORDER BY created_at DESC",
 		walletID)
 	if err != nil {
@@ -151,12 +162,17 @@ func GetTransactions(c *fiber.Ctx) error {
 // @Accept json
 // @Produce json
 // @Param walletId path string true "Wallet ID"
-// @Success 200 {object} fiber.Map "wallet_id and balance"
-// @Failure 400 {object} fiber.Map "Wallet ID is required"
-// @Failure 404 {object} fiber.Map "Wallet not found"
-// @Router /api/balance/{walletId} [get]
+// @Success 200 {object} models.Wallet "wallet_id and balance"
+// @Router /balance/{walletId} [get]
 func GetBalance(c *fiber.Ctx) error {
-	db := c.Locals("db").(*sqlx.DB)
+	db, err := database.OpenDBConnection()
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": true,
+			"msg":   "Failed to connect to database",
+		})
+	}
+	defer db.Close()
 
 	walletID := c.Params("walletId")
 	if walletID == "" {
@@ -166,7 +182,7 @@ func GetBalance(c *fiber.Ctx) error {
 	}
 
 	var wallet models.Wallet
-	err := db.Get(&wallet, "SELECT id, balance FROM wallets WHERE id = $1", walletID)
+	err = db.Get(&wallet, "SELECT id, balance FROM wallets WHERE id = $1", walletID)
 	if err != nil {
 		return c.Status(404).JSON(fiber.Map{
 			"error": "Wallet not found",

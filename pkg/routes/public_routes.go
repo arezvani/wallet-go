@@ -2,6 +2,7 @@ package routes
 
 import (
 	"github.com/arezvani/wallet-go/app/controllers"
+
 	"github.com/gofiber/fiber/v2"
 )
 

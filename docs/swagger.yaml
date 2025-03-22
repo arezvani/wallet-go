@@ -1,0 +1,102 @@
+basePath: /api
+definitions:
+  models.Transaction:
+    properties:
+      amount:
+        type: number
+      id:
+        type: integer
+      timestamp:
+        type: string
+      type:
+        description: '"credit" or "debit"'
+        type: string
+      wallet_id:
+        type: string
+    type: object
+  models.Wallet:
+    properties:
+      balance:
+        type: number
+      id:
+        type: string
+    type: object
+info:
+  contact:
+    email: fcairib76@gmail.com
+    name: API Support
+  description: This is an auto-generated API Docs.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: API
+  version: "1.0"
+paths:
+  /balance/{walletId}:
+    get:
+      consumes:
+      - application/json
+      description: Get the current balance for a specific wallet.
+      parameters:
+      - description: Wallet ID
+        in: path
+        name: walletId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: wallet_id and balance
+          schema:
+            $ref: '#/definitions/models.Wallet'
+      summary: get wallet balance
+      tags:
+      - Wallet
+  /transaction:
+    post:
+      consumes:
+      - application/json
+      description: Create a new transaction for a wallet.
+      parameters:
+      - description: Transaction details
+        in: body
+        name: transaction
+        required: true
+        schema:
+          $ref: '#/definitions/models.Transaction'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Transaction'
+      summary: create a new transaction
+      tags:
+      - Wallet
+  /transactions/{walletId}:
+    get:
+      consumes:
+      - application/json
+      description: Get all transactions for a specific wallet.
+      parameters:
+      - description: Wallet ID
+        in: path
+        name: walletId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Transaction'
+            type: array
+      summary: get all wallet transactions
+      tags:
+      - Wallet
+swagger: "2.0"
