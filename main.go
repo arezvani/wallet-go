@@ -13,7 +13,9 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	_ "github.com/joho/godotenv/autoload" // load .env file automatically
-	_ "github.com/lib/pq"
+
+	// _ "github.com/lib/pq"
+	_ "github.com/jackc/pgx/v4/stdlib"
 )
 
 // @title API

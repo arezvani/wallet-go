@@ -33,7 +33,7 @@ func PostgreSQLConnection() (*sqlx.DB, error) {
 
 	// Try to ping database.
 	if err := db.Ping(); err != nil {
-		// defer db.Close() // close database connection
+		db.Close() // close database connection
 		return nil, fmt.Errorf("error, not sent ping to database, %w", err)
 	}
 
