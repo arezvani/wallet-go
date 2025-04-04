@@ -3,8 +3,8 @@ package controllers
 import (
 	"time"
 
-	"github.com/arezvani/wallet-go/app/models"
-	"github.com/arezvani/wallet-go/platform/database"
+	"github.com/arezvani/wallet-go/internal/database"
+	"github.com/arezvani/wallet-go/internal/models"
 
 	"github.com/gofiber/fiber/v2"
 )

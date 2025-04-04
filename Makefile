@@ -1,10 +1,10 @@
 include .env
 
 # build dir
-BUILD_DIR=./cmd
+BUILD_DIR=./build
 
 # migration path
-MIGRATION_PATH=./platform/database/migrations
+MIGRATION_PATH=./internal/database/migrations
 
 # database url
 DATABASE_URL="$(DB_CONNECTION)://$(DB_USERNAME):$(DB_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(DB_DATABASE)?sslmode=disable"
@@ -19,7 +19,7 @@ clean:
 
 .PHONY: build
 build: clean
-	CGO_ENABLED=0 go build -ldflags="-w -s" -o $(BUILD_DIR)/$(APP_NAME) main.go
+	CGO_ENABLED=0 go build -ldflags="-w -s" -o $(BUILD_DIR)/$(APP_NAME) cmd/main.go
 
 .PHONY: start
 start: build

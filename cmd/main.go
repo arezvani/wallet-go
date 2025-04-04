@@ -1,11 +1,11 @@
 package main
 
 import (
-	"github.com/arezvani/wallet-go/pkg/configs"
+	"github.com/arezvani/wallet-go/internal/configs"
+	"github.com/arezvani/wallet-go/internal/database"
+	"github.com/arezvani/wallet-go/internal/routes"
 	"github.com/arezvani/wallet-go/pkg/middleware"
-	"github.com/arezvani/wallet-go/pkg/routes"
-	"github.com/arezvani/wallet-go/platform/database"
-	"github.com/arezvani/wallet-go/utils"
+	"github.com/arezvani/wallet-go/pkg/utils"
 
 	_ "github.com/arezvani/wallet-go/docs" // load API Docs files (Swagger)
 
